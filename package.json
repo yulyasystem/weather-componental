@@ -1,0 +1,22 @@
+{
+  "name": "weather-componental",
+  "version": "1.0.0",
+  "main": "index.html",
+  "repository": "https://github.com/yulyasystem/weather-componental.git",
+  "author": "yulyasystem <yulyasystem@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html --out-dir docs --public-url ./",
+    "prebuild": "shx rm -rf dist/",
+    "publish": "push-dir --dir=dist --branch=gh-pages",
+    "build-dev": "parcel build ./src/index.html --no-minify --public-url ./"
+  },
+  "devDependencies": {
+    "autoprefixer": "^9.4.9",
+    "cssnano": "^4.1.10",
+    "normalize.css": "^8.0.1",
+    "sass": "^1.17.2",
+    "shx": "^0.3.2"
+  }
+}
