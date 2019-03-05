@@ -1,18 +1,22 @@
-import {CurrentWeather} from '../CurrentWeather';
-import {Component} from '../../framework';
-import {WeatherDataService} from '../../Services';
+import {
+  CurrentWeather
+} from '../CurrentWeather';
+import {
+  Component
+} from '../../framework';
+import WeatherDataService from "../../Services/WeatherDataService.js";
 
 
 
 
 export default class App extends Component {
-  constructor(host){
+  constructor(host) {
     super(host);
   }
-  render(){
+  render() {
     // const w1 = document.createElement('div');
     // new Wind(w1,{speed:3,unit:'C'});
-    
+
 
     // return ['Hello my darling,',w1
     // ,{
@@ -22,6 +26,8 @@ export default class App extends Component {
     //     unit: 'C',
     //   },
     // },
-  // ];
+    // ];
+    console.log(WeatherDataService.getCurrentWeather());
+    return '1';
   }
 }

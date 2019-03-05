@@ -1,4 +1,2 @@
-export {
-  default as WeatherDataService
-}
-from "./Services";
+// export { default as WeatherDataService} from './WeatherDataService';
+
