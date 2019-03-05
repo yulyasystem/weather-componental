@@ -1,11 +1,11 @@
 import { Component } from "../../framework";
 
-export default class Temperature extends Component  {
+export default class SearchHistory extends Component  {
   constructor(host,props) {
     super(host,props);
   }
 
   render(){
-    return this.props.temperature + '&deg;'+this.props.unit;
+    
   }
 }
