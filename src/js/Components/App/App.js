@@ -27,6 +27,11 @@ export default class App extends Component {
     //   },
     // },
     // ];
+
+  console.log(WeatherDataService.getCurrentWeather().then(data => {
+    this._render(data)
+  }));
+    
     console.log(WeatherDataService.getCurrentWeather());
     return '1';
   }
