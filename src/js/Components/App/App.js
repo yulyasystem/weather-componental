@@ -5,6 +5,7 @@ import {
   Component
 } from '../../framework';
 import WeatherDataService from "../../Services/WeatherDataService.js";
+import WeatherForecast from '../WeatherForecast/WeatherForecast';
 
 
 
@@ -31,8 +32,32 @@ export default class App extends Component {
   // console.log(WeatherDataService.getCurrentWeather().then(data => {
   //   this._render(data)
   // }));
+
+WeatherDataService.getCurrentWeather().then(data => {
+  this.props = data;
+  console.log("propss",this.props);
+});
+
+WeatherDataService.getWeatherForecast().then(data=>{
+  console.log("forecast",data)
+})
+
+
+
+
+
+
+    return [
+      {
+      tag: CurrentWeather,
+      props: {},
+
+    },
+    {
+      tag:WeatherForecast,
+      props: {},
+    },
     
-    console.log(WeatherDataService.getCurrentWeather());
-    return '1';
+  ];
   }
 }
