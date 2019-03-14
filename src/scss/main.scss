@@ -36,3 +36,86 @@ div div div div div div div {
 .nice {
   background-color: aquamarine;
 }
+@import './fonts.scss';
+
+html {
+  box-sizing: border-box;
+  font-family: 'Inter';
+  overflow: hidden;
+
+}
+
+p {
+  margin: 0;
+}
+
+
+.flex-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-top: 6px;
+}
+
+.header-heading {
+  font-family: 'Inter';
+  font-weight: 700;
+  font-size: 32px;
+  margin: 0;
+
+}
+
+.header-logo {
+  width: 64px;
+  height: 48px;
+  margin-left: 20px;
+}
+
+.input-search {
+  position: relative;
+  width: 380px;
+  height: 40px;
+  padding-left: 30px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 45px;
+  -webkit-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  -moz-box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+::-moz-placeholder {
+  color: rgb(188, 177, 177);
+}
+
+::-webkit-input-placeholder {
+  color: rgb(188, 177, 177);
+}
+
+.search-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 12px;
+}
+
+.star-image {
+  width: 34px;
+  height: 34px;
+  padding-top: 8px;
+  margin-left: 15px;
+
+}
+
+
+
+@import './card.scss';
+// @import './animation.scss';
+
