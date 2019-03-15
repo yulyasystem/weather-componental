@@ -38,8 +38,6 @@ class WeatherDataService {
   }
 
   getWeatherForecast() {
-
-
   return fetch(API_FORECAST_URL)
     .then(this.handleErrors)
     .then(response => {
@@ -51,7 +49,6 @@ class WeatherDataService {
       return data;
     })
     .catch(error => console.log(error));
-
   }
  
 }
