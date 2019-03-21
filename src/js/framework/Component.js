@@ -1,7 +1,6 @@
-const isEvent = (name)=>name.startsWiths("on");
-const isAttribute = (name)=>!isEvent(name)&& name != 'children';
+const isEvent = (name) => name.startsWiths("on");
+const isAttribute = (name) => !isEvent(name) && name != 'children';
 let rootInstance = null;
-;
 
 export default class Component {
   constructor(host, props = {}) {
@@ -12,97 +11,56 @@ export default class Component {
   }
   bindEverything() {}
 
-  updateState(){
+  updateState() {
 
   }
-
-  
-
-  
 
   _render() {
     let previousInstance = rootInstance;
-    this.host.innerHTML = "";
     let content = this.render();
-    console.log("content", content);
+    const {
+      tag,
+      props
+    } = content;
+    console.log(content, tag, props);
 
-    if (!Array.isArray(content)) {
-      content = [content];
-    }
+    // Create DOM element
+    const isTextElement = type === "TEXT ELEMENT";
+    const dom = isTextElement ?
+      document.createTextNode("") :
+      document.createElement(type);
 
-    // content.map(item => this._vDomPrototypeElementToHtmlElement(item)) // [string|HTMLElement] => [HTMLElement]
-    //   .forEach(htmlElement => {
-    //     this.host.appendChild(htmlElement);
-    //   });
-  }
- 
+    // Add event listeners
+    const isListener = name => name.startsWith("on");
+    Object.keys(props).filter(isListener).forEach(name => {
+      const eventType = name.toLowerCase().substring(2);
+      dom.addEventListener(eventType, props[name]);
+    });
 
-  render() {
-    return 'OMG! They wanna see me!!!!!! Aaaaaa';
-  }
+    // Set properties
+    const isAttribute = name => !isListener(name) && name != "children";
+    Object.keys(props).filter(isAttribute).forEach(name => {
+      dom[name] = props[name];
+    });
 
-  // _vDomPrototypeElementToHtmlElement(element) {
-  //   if (typeof element === 'string') {
-  //     let container;
-  //     const containsHtmlTags = /[<>&]/.test(element);
-  //     if (containsHtmlTags) {
-  //       container = document.createElement('div');
-  //       container.innerHTML = element;
-  //     } else {
-  //       container = document.createTextNode(element);
-  //     }
-  //     return container;
-  //   } else {
-  //     if (element.tag) {
-  //       if (typeof element.tag === 'function') {
+    // Render children
+    const childElements = props.children || [];
+    childElements.forEach(childElement => render(childElement, dom));
 
-  //         const container = document.createElement('div');
-  //         new element.tag(container, element.props);
+    // Append to parent
+    parentDom.appendChild(dom);
+  git
 
-  //         return container;
-  //       } else {
-  //         // string
-  //         const container = document.createElement(element.tag);
-  //         if (element.content) {
-  //           container.innerHTML = element.content;
-  //         }
 
-  //         // ensure following element properties are Array
-  //         ['classList', 'attributes', 'children'].forEach(item => {
-  //           if (element[item] && !Array.isArray(element[item])) {
-  //             element[item] = [element[item]];
-  //           }
-  //         });
-  //         if (element.classList) {
-  //           container.classList.add(...element.classList);
-  //         }
-  //         if (element.attributes) {
-  //           element.attributes.forEach(attributeSpec => {
-  //             container.setAttribute(attributeSpec.name, attributeSpec.value);
-  //           });
-  //         }
 
-  //         // process eventHandlers
-  //         if (element.eventHandlers) {
-  //           Object.keys(element.eventHandlers).forEach(eventType => {
-  //             container.addEventListener(eventType, element.eventHandlers[eventType]);
-  //           });
-  //         }
 
-  //         // process children
-  //         if (element.children) {
-  //           element.children.forEach(el => {
-  //             const htmlElement = this._vDomPrototypeElementToHtmlElement(el);
-  //             container.appendChild(htmlElement);
-  //           });
-  //         }
+}
 
-  //         return container;
-  //       }
-  //     }
-  //     return element;
-  //   }
-  // }
+
+render() {
+  return 'OMG! They wanna see me!!!!!! Aaaaaa';
+}
+
 }
 export const TEXT_ELEMENT = "TEXT_ELEMENT";
 
@@ -124,5 +82,3 @@ function createTextElement(value) {
     nodeValue: value
   });
 }
-
-
