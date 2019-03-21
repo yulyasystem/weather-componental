@@ -1,15 +1,14 @@
-const isEvent = (name) => name.startsWiths("on");
+const isEvent = (name) => name.startsWith("on");
 const isAttribute = (name) => !isEvent(name) && name != 'children';
-let rootInstance = null;
+let rootInstance = null; 
 
 export default class Component {
   constructor(host, props = {}) {
     this.host = host;
     this.props = props;
-    this.bindEverything();
     this._render();
   }
-  bindEverything() {}
+
 
   updateState() {
 
@@ -25,34 +24,19 @@ export default class Component {
     console.log(content, tag, props);
 
     // Create DOM element
-    const isTextElement = type === "TEXT ELEMENT";
+    const isTextElement = tag === "TEXT ELEMENT";
     const dom = isTextElement ?
       document.createTextNode("") :
-      document.createElement(type);
+      document.createElement(tag);
 
-    // Add event listeners
-    const isListener = name => name.startsWith("on");
-    Object.keys(props).filter(isListener).forEach(name => {
-      const eventType = name.toLowerCase().substring(2);
-      dom.addEventListener(eventType, props[name]);
-    });
-
-    // Set properties
-    const isAttribute = name => !isListener(name) && name != "children";
-    Object.keys(props).filter(isAttribute).forEach(name => {
-      dom[name] = props[name];
-    });
+  
 
     // Render children
     const childElements = props.children || [];
-    childElements.forEach(childElement => render(childElement, dom));
+    childElements.forEach(childElement => this.render(childElement, dom));
 
     // Append to parent
-    parentDom.appendChild(dom);
-  git
-
-
-
+    host.appendChild(dom);
 
 }
 
@@ -61,6 +45,37 @@ render() {
   return 'OMG! They wanna see me!!!!!! Aaaaaa';
 }
 
+}
+function updateProps(dom, prevProps, nextProps) {
+  Object.keys(prevProps)
+    .filter(isEvent)
+    .forEach(name => {
+      const eventType = name.toLowerCase().substring(2);
+      dom.removeEventListener(eventType, prevProps[name]);
+    });
+
+  // Remove attributes
+  Object.keys(prevProps)
+    .filter(isAttribute)
+    .forEach(name => {
+      dom[name] = null;
+    });
+
+  console.log("dom", dom);
+  // Set attributes
+  Object.keys(nextProps)
+    .filter(isAttribute)
+    .forEach(name => {
+      dom[name] = nextProps[name];
+    });
+
+  // Add event listeners
+  Object.keys(nextProps)
+    .filter(isEvent)
+    .forEach(name => {
+      const eventType = name.toLowerCase().substring(2);
+      dom.addEventListener(eventType, nextProps[name]);
+    });
 }
 export const TEXT_ELEMENT = "TEXT_ELEMENT";
 
