@@ -22,24 +22,12 @@ class WeatherDataService {
         console.log("response", response);
         return response.json();
       })
-      .then(function (data) {
-        console.log("ok!", data);
-        let weatherData = {
-          temp: data.main.temp,
-          humidity: data.main.humidity,
-          preassure: data.main.pressure,
-          wind: data.wind.speed,
-
-        }
-        return weatherData;
-      })
+      .then(weather => callbackFromCurrentWeather(weather))
       .catch(error => console.log(error));
 
   }
 
   getWeatherForecast() {
-
-
   return fetch(API_FORECAST_URL)
     .then(this.handleErrors)
     .then(response => {
@@ -51,7 +39,6 @@ class WeatherDataService {
       return data;
     })
     .catch(error => console.log(error));
-
   }
  
 }
@@ -61,3 +48,14 @@ class WeatherDataService {
 
 
 export default new WeatherDataService();
+/*function (data) {
+  console.log("ok!", data);
+  let weatherData = {
+    temp: data.main.temp,
+    humidity: data.main.humidity,
+    preassure: data.main.pressure,
+    wind: data.wind.speed,
+
+  }
+  return weatherData;
+}*/

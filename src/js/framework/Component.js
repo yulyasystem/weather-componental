@@ -1,94 +1,190 @@
+const isEvent = (name) => name.startsWith("on");
+const isAttribute = (name) => !isEvent(name) && name != 'children';
+let rootInstance = null;
+const TEXT_ELEMENT = "TEXT_ELEMENT";
+
+
 export default class Component {
   constructor(host, props = {}) {
     this.host = host;
     this.props = props;
-    this.bindEverything();
-    this._render();
-  }
-  bindEverything() {}
-  _render() {
-    this.host.innerHTML = "";
-    let content = this.render();
 
-    if (!Array.isArray(content)) {
-      content = [content];
-    }
-
-    content.map(item => this._vDomPrototypeElementToHtmlElement(item)) // [string|HTMLElement] => [HTMLElement]
-      .forEach(htmlElement => {
-        this.host.appendChild(htmlElement);
-      });
   }
-  /* @returns {string|[string|HTMLElement|Component]} */
+
+  updateState(stateDelta) {
+    this.state = Object.assign({}, this.state, stateDelta);
+    this.updateInstance(this.__internalInstance);
+  }
+
+ updateInstance(internalInstance) {
+   const context = this.render();
+   console.log("context", context);
+   document.write(context);
+   const host = internalInstance.dom.parentNode;
+   const element = internalInstance.element;
+   controlInstance(host, internalInstance, element);
+ }
+
   render() {
     return 'OMG! They wanna see me!!!!!! Aaaaaa';
   }
+}
 
-  /**
-   *
-   * @param {string|HTMLElement|Object} element
-   * @private
-   */
-  _vDomPrototypeElementToHtmlElement(element) {
-    if (typeof element === 'string') {
-      let container;
-      const containsHtmlTags = /[<>&]/.test(element);
-      if (containsHtmlTags) {
-        container = document.createElement('div');
-        container.innerHTML = element;
-      } else {
-        container = document.createTextNode(element);
-      }
-      return container;
-    } else {
-      if (element.tag) {
-        if (typeof element.tag === 'function') {
+function controlInstance(host, instance, element) { // first render intance = null 
+  if (instance == null) { // Create instance
+    const newInstance = createInstance(element);
+    host.appendChild(newInstance.dom);
+    return newInstance;
 
-          const container = document.createElement('div');
-          new element.tag(container, element.props);
+  } else if (element == null) { // Remove instance
+    host.removeChild(instance.dom);
+    return null;
 
-          return container;
-        } else {
-          // string
-          const container = document.createElement(element.tag);
-          if (element.content) {
-            container.innerHTML = element.content;
-          }
+  } else if (instance.element.tag !== element.tag) { // Replace instance
+    const newInstance = createInstance(element);
+    host.replaceChild(newInstance.dom, instance.dom);
+    return newInstance;
+  } else if (typeof element.tag === "string") { // Update instance
+    updateProps(instance.dom, instance.element.props, element.props);
+    instance.childInstances = manageChildren(instance, element);
+    instance.element = element;
+    return instance;
+  } else { //Update composite instance
+    instance.publicInstance.props = element.props;
 
-          // ensure following element properties are Array
-          ['classList', 'attributes', 'children'].forEach(item => {
-            if (element[item] && !Array.isArray(element[item])) {
-              element[item] = [element[item]];
-            }
-          });
-          if (element.classList) {
-            container.classList.add(...element.classList);
-          }
-          if (element.attributes) {
-            element.attributes.forEach(attributeSpec => {
-              container.setAttribute(attributeSpec.name, attributeSpec.value);
-            });
-          }
-
-          // process eventHandlers
-          if (element.eventHandlers) {
-            Object.keys(element.eventHandlers).forEach(eventType => {
-              container.addEventListener(eventType, element.eventHandlers[eventType]);
-            });
-          }
-
-          // process children
-          if (element.children) {
-            element.children.forEach(el => {
-              const htmlElement = this._vDomPrototypeElementToHtmlElement(el);
-              container.appendChild(htmlElement);
-            });
-          }
-
-          return container;
-        }
-      }
-      return element;
-    }
+    const childElement = instance.publicInstance.render();
+    const oldChildInstance = instance.childInstance;
+    const childInstance = controlInstance(host, oldChildInstance, childElement);
+    instance.dom = childInstance.dom;
+    instance.childInstance = childInstance;
+    instance.element = element;
+    return instance;
   }
+}
+
+function manageChildren(instance, element) {
+  const dom = instance.dom;
+  const childInstances = instance.childInstances;
+  const nextChildElements = element.props.children || [];
+  const newChildInstances = [];
+  const count = Math.max(childInstances.length, nextChildElements.length);
+  for (let i = 0; i < count; i++) {
+    const childInstance = childInstances[i];
+    const childElement = nextChildElements[i];
+    const newChildInstance = controlInstance(dom, childInstance, childElement);
+    newChildInstances.push(newChildInstance);
+  }
+  return newChildInstances.filter(instance => instance != null);
+}
+
+function createInstance(element) {
+  const {
+    tag,
+    props
+  } = element;
+  const isDomElement = typeof tag === "string";
+
+  if (isDomElement) {
+
+    // Instantiate DOM element
+    const isTextElement = tag === TEXT_ELEMENT;
+    const dom = isTextElement ?
+      document.createTextNode("") :
+      document.createElement(tag);
+
+    updateProps(dom, [], props);
+
+    const childElements = props.children || [];
+    const childInstances = childElements.map(createInstance);
+    const childDoms = childInstances.map(childInstance => childInstance.dom);
+    childDoms.forEach(childDom => dom.appendChild(childDom));
+
+    const instance = {
+      dom,
+      element,
+      childInstances
+    };
+    return instance;
+  } else {
+
+    // createInstance component element
+    const instance = {};
+    const publicInstance = createPublicInstance(element, instance);
+    const childElement = publicInstance.render(); //content
+    const childInstance = createInstance(childElement);
+    const dom = childInstance.dom;
+    Object.assign(instance, {
+      dom,
+      element,
+      childInstance,
+      publicInstance
+    });
+    return instance;
+  }
+}
+
+export function kottans(element, container) {
+  const prevInstance = rootInstance;
+  const nextInstance = controlInstance(container, prevInstance, element);
+  rootInstance = nextInstance;
+}
+
+function updateProps(dom, prevProps, nextProps) {
+  Object.keys(prevProps)
+    .filter(isEvent)
+    .forEach(name => {
+      const eventType = name.toLowerCase().substring(2);
+      dom.removeEventListener(eventType, prevProps[name]);
+    });
+
+  // Remove attributes
+  Object.keys(prevProps)
+    .filter(isAttribute)
+    .forEach(name => {
+      dom[name] = null;
+    });
+
+  // Set attributes
+  Object.keys(nextProps)
+    .filter(isAttribute)
+    .forEach(name => {
+      dom[name] = nextProps[name];
+    });
+
+  // Add event listeners
+  Object.keys(nextProps)
+    .filter(isEvent)
+    .forEach(name => {
+      const eventType = name.toLowerCase().substring(2);
+      dom.addEventListener(eventType, nextProps[name]);
+    });
+}
+
+function createPublicInstance(element, internalInstance) {
+  const {
+    tag,
+    props
+  } = element;
+  console.log(element);
+  const publicInstance = new tag(props); // new Component(props)
+  publicInstance.__internalInstance = internalInstance;
+  return publicInstance;
+}
+export function createElement(tag, config, ...args) { //config -{}props args-children
+  const props = Object.assign({}, config);
+  const hasChildren = args.length > 0;
+  const arrayChildren = hasChildren ? [].concat(...args) : [];
+  props.children = arrayChildren
+    .filter(item => item != null && item !== false) //except falsy values
+    .map(item => (item instanceof Object ? item : createTextElement(item))); //convert every child that is not element
+  return {
+    tag,
+    props
+  };
+}
+
+function createTextElement(value) {
+  return createElement(TEXT_ELEMENT, {
+    nodeValue: value
+  });
 }
