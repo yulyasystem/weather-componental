@@ -5,11 +5,13 @@ import {
 import {
   Component
 } from '../../framework';
-
+import {SearchBar} from "../SearchBar";
 import {createElement} from "../../framework/Component.js"
 
 import WeatherDataService from "../../Services/WeatherDataService.js";
 import WeatherForecast from '../WeatherForecast/WeatherForecast';
+import {kottans} from "../../framework/Component";
+
 
 
 /**@jsx createElement */
@@ -53,7 +55,8 @@ export default class App extends Component {
   //   },
     
   // ];
+  // return (<SearchBar/>);
 
-  return (<div className="me"> HEEEY<span>hello</span></div>);
+  return   ( <div classList = "flex-wrapper"> <SearchBar/> <CurrentWeather/></div>);
   }
 }

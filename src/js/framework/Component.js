@@ -8,21 +8,22 @@ export default class Component {
   constructor(host, props = {}) {
     this.host = host;
     this.props = props;
-    this._render();
-  }
-
-  updateState() {
 
   }
 
-  _render() {
-    let content = this.render();
-    const {
-      tag,
-      props
-    } = content;
-    console.log(content, tag, props, "FUCCCCCCCCCCCCCCK!");
+  updateState(stateDelta) {
+    this.state = Object.assign({}, this.state, stateDelta);
+    this.updateInstance(this.__internalInstance);
   }
+
+ updateInstance(internalInstance) {
+   const context = this.render();
+   console.log("context", context);
+   document.write(context);
+   const host = internalInstance.dom.parentNode;
+   const element = internalInstance.element;
+   controlInstance(host, internalInstance, element);
+ }
 
   render() {
     return 'OMG! They wanna see me!!!!!! Aaaaaa';
@@ -84,7 +85,7 @@ function createInstance(element) {
   const isDomElement = typeof tag === "string";
 
   if (isDomElement) {
-    console.log("IS DOM!!!!!!!!!!!!!!!")
+
     // Instantiate DOM element
     const isTextElement = tag === TEXT_ELEMENT;
     const dom = isTextElement ?
@@ -124,7 +125,6 @@ function createInstance(element) {
 
 export function kottans(element, container) {
   const prevInstance = rootInstance;
-  console.log(element, container, "in RENDER FUNCTION");
   const nextInstance = controlInstance(container, prevInstance, element);
   rootInstance = nextInstance;
 }
@@ -144,7 +144,6 @@ function updateProps(dom, prevProps, nextProps) {
       dom[name] = null;
     });
 
-  console.log("dom", dom);
   // Set attributes
   Object.keys(nextProps)
     .filter(isAttribute)
@@ -166,8 +165,8 @@ function createPublicInstance(element, internalInstance) {
     tag,
     props
   } = element;
+  console.log(element);
   const publicInstance = new tag(props); // new Component(props)
-  console.log("public instance", publicInstance, "tag", tag, new tag(props), publicInstance.render());
   publicInstance.__internalInstance = internalInstance;
   return publicInstance;
 }
